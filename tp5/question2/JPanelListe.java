@@ -63,7 +63,11 @@ public class JPanelListe extends JPanel implements ActionListener, ItemListener 
         add(texte, "Center");
 
         boutonRechercher.addActionListener(this);
-        // à compléter;
+        boutonRetirer.addActionListener(this);
+        boutonOccurrences.addActionListener(this);
+        saisie.addActionListener(this);
+        ordreCroissant.addItemListener(this);
+        ordreDecroissant.addItemListener(this);
 
     }
 
@@ -94,19 +98,37 @@ public class JPanelListe extends JPanel implements ActionListener, ItemListener 
     }
 
     public void itemStateChanged(ItemEvent ie) {
-        if (ie.getSource() == ordreCroissant)
-            ;// à compléter
-        else if (ie.getSource() == ordreDecroissant)
-            ;// à compléter
+            if (liste == null){
+            return;
+        }
+        if (ie.getSource() == ordreCroissant){
+            Collections.sort(liste);
+        }
+        else if (ie.getSource() == ordreDecroissant){
+            Collections.sort(liste, new trieDecroissant());
+        }
 
         texte.setText(liste.toString());
+    }
+    
+      public class trieDecroissant implements Comparator<String>{
+        public int compare(String str1, String str2){ 
+            return str2.compareTo(str1);
+        }
     }
 
     private boolean retirerDeLaListeTousLesElementsCommencantPar(String prefixe) {
         boolean resultat = false;
-        // à compléter
-        // à compléter
-        // à compléter
+        String str;
+        Iterator<String> it = liste.iterator();
+        while(it.hasNext()){
+            str = it.next();
+            if(str != null && str.startsWith(prefixe)){
+                occurrences.replace(str, occurrences.get(str) - 1);
+                resultat = true;
+                it.remove();
+            }
+        }
         return resultat;
     }
 

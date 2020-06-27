@@ -33,11 +33,15 @@ public class JPanelListe2 extends JPanel implements ActionListener, ItemListener
 
     private List<String> liste;
     private Map<String, Integer> occurrences;
+    
+    private Gardien gardien;
 
     public JPanelListe2(List<String> liste, Map<String, Integer> occurrences) {
         this.liste = liste;
         this.occurrences = occurrences;
-
+ 
+        gardien = new Gardien();
+        
         cmd.setLayout(new GridLayout(3, 1));
 
         cmd.add(afficheur);
@@ -67,7 +71,12 @@ public class JPanelListe2 extends JPanel implements ActionListener, ItemListener
         add(texte, "Center");
 
         boutonRechercher.addActionListener(this);
-        // √† compl√©ter;
+        boutonRetirer.addActionListener(this);
+        boutonOccurrences.addActionListener(this);
+        boutonAnnuler.addActionListener(this);
+        saisie.addActionListener(this);
+        ordreCroissant.addItemListener(this);
+        ordreDecroissant.addItemListener(this);
 
     }
 
@@ -100,19 +109,51 @@ public class JPanelListe2 extends JPanel implements ActionListener, ItemListener
     }
 
     public void itemStateChanged(ItemEvent ie) {
-        if (ie.getSource() == ordreCroissant)
-        ;// √† compl√©ter
-        else if (ie.getSource() == ordreDecroissant)
-        ;// √† compl√©ter
+        if (liste == null){
+            return;
+        }
+
+        /**
+         * Afin de stocker la 'liste de String', il est prÈfÈrable
+         * de crÈer une nouvelle liste (new LinkedList<>(liste))
+         * qui contient les mÍmes ÈlÈments pour Èviter
+         * les modifications concurrentes.
+         */
+        gardien.addMemento(new Memento(new LinkedList<>(liste)));
+
+        if (ie.getSource() == ordreCroissant){
+            Collections.sort(liste);
+        }
+        else if (ie.getSource() == ordreDecroissant){
+            Collections.sort(liste, new trieDecroissant());
+        }
 
         texte.setText(liste.toString());
     }
 
+    private class trieDecroissant implements Comparator<String>{
+        public int compare(String str1, String str2){ 
+            return str2.compareTo(str1);
+        }
+    }
+
     private boolean retirerDeLaListeTousLesElementsCommencantPar(String prefixe) {
         boolean resultat = false;
-        // √† compl√©ter
-        // √† compl√©ter
-        // √† compl√©ter
+        List<String> listeTemp = new LinkedList<>(liste);
+        String str;
+        Iterator<String> it = liste.iterator();
+        while(it.hasNext()){
+            str = it.next();
+            if(str != null && str.startsWith(prefixe)){
+                occurrences.replace(str, occurrences.get(str) - 1);
+                resultat = true;
+                it.remove();
+            }
+        }
+
+        if(resultat){
+            gardien.addMemento(new Memento(new LinkedList<>(listeTemp)));
+        }
         return resultat;
     }
 
